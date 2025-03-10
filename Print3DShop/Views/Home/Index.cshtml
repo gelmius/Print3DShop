@@ -1,8 +1,258 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="mb-4">Bring Your Ideas to Life with 3D Printing</h1>
+                <p class="mb-4">From custom designs to ready-made products, we offer high-quality 3D printing services and unique 3D printed items for every need.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg">Shop Products</a>
+                    <a asp-controller="PrintingServices" asp-action="CustomPrint" class="btn btn-outline-light btn-lg">Custom Printing</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="/images/hero-3d-printing.png" alt="3D Printing" class="img-fluid rounded-3 mt-4 mt-lg-0">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Featured Products</h2>
+        <p class="text-muted">Discover our most popular 3D printed items</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <div class="col-md-6 col-lg-3">
+                <div class="card product-card h-100">
+                    <img src="@(string.IsNullOrEmpty(product.ThumbnailImagePath) ? "/images/placeholder-product.png" : product.ThumbnailImagePath)"
+                         class="card-img-top" alt="@product.Name">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted">@(product.Description.Length > 100 ? product.Description.Substring(0, 100) + "..." : product.Description)</p>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-auto">
+                                <span class="price">$@product.Price.ToString("0.00")</span>
+                            </div>
+                            <div class="d-flex">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= product.AverageRating)
+                                    {
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    }
+                                    else if (i - 0.5 <= product.AverageRating)
+                                    {
+                                        <i class="bi bi-star-half text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star text-warning"></i>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary">View Details</a>
+                            <form asp-controller="Products" asp-action="AddToCart" method="post">
+                                <input type="hidden" name="id" value="@product.Id" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">View All Products</a>
+    </div>
+</section>
+
+<section class="bg-light py-5 mb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Our Printing Services</h2>
+            <p class="text-muted">High-quality 3D printing services for all your needs</p>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var service in Model.PrintingServices)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img src="@(string.IsNullOrEmpty(service.ThumbnailImagePath) ? "/images/placeholder-service.png" : service.ThumbnailImagePath)"
+                             class="card-img-top" alt="@service.Name">
+                        <div class="card-body">
+                            <h5 class="card-title">@service.Name</h5>
+                            <p class="card-text text-muted">@(service.Description.Length > 100 ? service.Description.Substring(0, 100) + "..." : service.Description)</p>
+                            <p class="price">Starting at $@service.BasePrice.ToString("0.00")</p>
+                            <div class="d-grid">
+                                <a asp-controller="PrintingServices" asp-action="Details" asp-route-id="@service.Id" class="btn btn-primary">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-controller="PrintingServices" asp-action="Index" class="btn btn-outline-primary">View All Services</a>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-6">
+            <h2 class="fw-bold mb-4">Custom 3D Printing Service</h2>
+            <p class="mb-4">Have a unique design in mind? Our custom 3D printing service brings your ideas to reality. Upload your 3D model or work with our designers to create something special.</p>
+            <ul class="list-unstyled mb-4">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> High-quality materials</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Precision printing</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Fast turnaround times</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Professional finishing options</li>
+            </ul>
+            <a asp-controller="PrintingServices" asp-action="CustomPrint" class="btn btn-primary btn-lg">Start Your Custom Project</a>
+        </div>
+        <div class="col-lg-6">
+            <img src="/images/custom-printing.png" alt="Custom 3D Printing" class="img-fluid rounded-3 mt-4 mt-lg-0">
+        </div>
+    </div>
+</section>
+
+<section class="bg-light py-5 mb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Why Choose Us</h2>
+            <p class="text-muted">We're committed to quality, innovation, and customer satisfaction</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <i class="bi bi-award text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 fw-bold">Quality Materials</h5>
+                    <p class="text-muted">We use only the highest quality materials for all our prints.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <i class="bi bi-gear text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 fw-bold">Precision Printing</h5>
+                    <p class="text-muted">Our advanced printers ensure high precision and detailed results.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <i class="bi bi-lightning-charge text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 fw-bold">Fast Turnaround</h5>
+                    <p class="text-muted">Quick production and shipping to meet your deadlines.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <i class="bi bi-headset text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 fw-bold">Expert Support</h5>
+                    <p class="text-muted">Our team is always ready to help with any questions or concerns.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Customer Reviews</h2>
+        <p class="text-muted">See what our customers have to say about us</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <img src="/images/avatar-1.png" alt="Customer" class="rounded-circle" width="60" height="60">
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">John Smith</h5>
+                            <div class="d-flex">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">"The quality of the 3D printed figurine I ordered was outstanding. The details were perfect and the finish was smooth. Highly recommend!"</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <img src="/images/avatar-2.png" alt="Customer" class="rounded-circle" width="60" height="60">
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">Emily Johnson</h5>
+                            <div class="d-flex">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">"I used their custom printing service for a prototype and was impressed with the quick turnaround and helpful suggestions from their team."</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <img src="/images/avatar-3.png" alt="Customer" class="rounded-circle" width="60" height="60">
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">Michael Brown</h5>
+                            <div class="d-flex">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-half text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">"The geometric vase I purchased is both beautiful and functional. The material quality is excellent and it arrived well-packaged."</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Ready to Start Your 3D Printing Project?</h2>
+        <p class="mb-4">Whether you're looking for ready-made products or custom printing services, we've got you covered.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg">Shop Products</a>
+            <a asp-controller="PrintingServices" asp-action="CustomPrint" class="btn btn-outline-light btn-lg">Custom Printing</a>
+        </div>
+    </div>
+</section>
