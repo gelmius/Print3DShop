@@ -1,0 +1,214 @@
+﻿@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container">
+    <h1 class="fw-bold mb-4">Checkout</h1>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="fw-bold mb-4">Shipping Information</h4>
+
+                    <form asp-controller="Orders" asp-action="PlaceOrder" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label">First Name</label>
+                                <input asp-for="FirstName" class="form-control" required>
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label">Last Name</label>
+                                <input asp-for="LastName" class="form-control" required>
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" required>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" required>
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" required>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="City" class="form-label">City</label>
+                                <input asp-for="City" class="form-control" required>
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="State" class="form-label">State</label>
+                                <input asp-for="State" class="form-control" required>
+                                <span asp-validation-for="State" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ZipCode" class="form-label">Zip Code</label>
+                                <input asp-for="ZipCode" class="form-control" required>
+                                <span asp-validation-for="ZipCode" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Country" class="form-label">Country</label>
+                                <input asp-for="Country" class="form-control" required>
+                                <span asp-validation-for="Country" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold mb-4 mt-5">Payment Information</h4>
+
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="creditCard" value="CreditCard" checked>
+                                    <label class="form-check-label" for="creditCard">
+                                        Credit Card
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="paypal" value="PayPal">
+                                    <label class="form-check-label" for="paypal">
+                                        PayPal
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="creditCardForm">
+                            <div class="mb-3">
+                                <label asp-for="CreditCardNumber" class="form-label">Card Number</label>
+                                <input asp-for="CreditCardNumber" class="form-control" placeholder="1234 5678 9012 3456">
+                                <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label asp-for="ExpirationDate" class="form-label">Expiration Date</label>
+                                    <input asp-for="ExpirationDate" class="form-control" placeholder="MM/YY">
+                                    <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="CVV" class="form-label">CVV</label>
+                                    <input asp-for="CVV" class="form-control" placeholder="123">
+                                    <span asp-validation-for="CVV" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="cart-summary mb-4">
+                <h4 class="fw-bold mb-4">Order Summary</h4>
+
+                @foreach (var item in Model.CartItems)
+                {
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <span class="fw-bold">
+                                @if (item.Product != null)
+                                {
+                                    @item.Product.Name
+                                }
+                                else if (item.PrintingService != null)
+                                {
+                                    @item.PrintingService.Name
+                                }
+                                else if (item.CustomPrintRequest != null)
+                                {
+                                    @item.CustomPrintRequest.Name
+                                }
+                            </span>
+                            <span class="text-muted d-block">Qty: @item.Quantity</span>
+                        </div>
+                        <span>
+                            @if (item.Product != null)
+                            {
+                                <span>$@((item.Product.Price * item.Quantity).ToString("0.00"))</span>
+                            }
+                            else if (item.PrintingService != null)
+                            {
+                                <span>$@((item.PrintingService.BasePrice * item.Quantity).ToString("0.00"))</span>
+                            }
+                            else if (item.CustomPrintRequest != null && item.CustomPrintRequest.EstimatedPrice.HasValue)
+                            {
+                                <span>$@((item.CustomPrintRequest.EstimatedPrice.Value * item.Quantity).ToString("0.00"))</span>
+                            }
+                        </span>
+                    </div>
+                }
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>$@Model.CartTotal.ToString("0.00")</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping</span>
+                    <span>@(Model.CartTotal >= 50 ? "Free" : "$5.00")</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax</span>
+                    <span>$@((Model.CartTotal * 0.08m).ToString("0.00"))</span>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fw-bold">Total</span>
+                    <span class="fw-bold fs-5">$@((Model.CartTotal + (Model.CartTotal >= 50 ? 0 : 5) + (Model.CartTotal * 0.08m)).ToString("0.00"))</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">Order Notes</h5>
+                    <textarea class="form-control" rows="3" placeholder="Add any special instructions or notes about your order here..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('input[name="PaymentMethod"]').change(function() {
+                if ($(this).val() === 'CreditCard') {
+                    $('#creditCardForm').show();
+                } else {
+                    $('#creditCardForm').hide();
+                }
+            });
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

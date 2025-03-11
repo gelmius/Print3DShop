@@ -1,0 +1,329 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">Dashboard</h1>
+    <div>
+        <span class="text-muted">Today: @DateTime.Now.ToString("MMMM dd, yyyy")</span>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Total Orders</h6>
+                        <h2 class="mt-2 mb-0">@ViewBag.TotalOrders</h2>
+                    </div>
+                    <div>
+                        <i class="bi bi-cart fs-1"></i>
+                    </div>
+                </div>
+                <p class="card-text mt-3 mb-0">
+                    <i class="bi bi-arrow-up-circle-fill me-1"></i>
+                    <span>@ViewBag.OrdersIncrease% from last month</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Revenue</h6>
+                        <h2 class="mt-2 mb-0">$@ViewBag.TotalRevenue</h2>
+                    </div>
+                    <div>
+                        <i class="bi bi-currency-dollar fs-1"></i>
+                    </div>
+                </div>
+                <p class="card-text mt-3 mb-0">
+                    <i class="bi bi-arrow-up-circle-fill me-1"></i>
+                    <span>@ViewBag.RevenueIncrease% from last month</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Products</h6>
+                        <h2 class="mt-2 mb-0">@ViewBag.TotalProducts</h2>
+                    </div>
+                    <div>
+                        <i class="bi bi-box-seam fs-1"></i>
+                    </div>
+                </div>
+                <p class="card-text mt-3 mb-0">
+                    <i class="bi bi-arrow-up-circle-fill me-1"></i>
+                    <span>@ViewBag.NewProducts new this month</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Customers</h6>
+                        <h2 class="mt-2 mb-0">@ViewBag.TotalCustomers</h2>
+                    </div>
+                    <div>
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+                <p class="card-text mt-3 mb-0">
+                    <i class="bi bi-arrow-up-circle-fill me-1"></i>
+                    <span>@ViewBag.NewCustomers new this month</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Sales Overview</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="salesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            This Month
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="salesDropdown">
+                            <li><a class="dropdown-item" href="#">This Week</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Top Categories</h5>
+                    <button class="btn btn-sm btn-outline-secondary">View All</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Orders</h5>
+                    <a asp-controller="Orders" asp-action="ManageOrders" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-1234</td>
+                                <td>John Smith</td>
+                                <td>@DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy")</td>
+                                <td>$129.99</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-1233</td>
+                                <td>Emily Johnson</td>
+                                <td>@DateTime.Now.AddDays(-2).ToString("MMM dd, yyyy")</td>
+                                <td>$79.95</td>
+                                <td><span class="badge bg-primary">Shipped</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-1232</td>
+                                <td>Michael Brown</td>
+                                <td>@DateTime.Now.AddDays(-2).ToString("MMM dd, yyyy")</td>
+                                <td>$54.50</td>
+                                <td><span class="badge bg-warning text-dark">Processing</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-1231</td>
+                                <td>Sarah Wilson</td>
+                                <td>@DateTime.Now.AddDays(-3).ToString("MMM dd, yyyy")</td>
+                                <td>$199.99</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-1230</td>
+                                <td>David Lee</td>
+                                <td>@DateTime.Now.AddDays(-4).ToString("MMM dd, yyyy")</td>
+                                <td>$45.00</td>
+                                <td><span class="badge bg-primary">Shipped</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Custom Print Requests</h5>
+                    <a asp-controller="PrintingServices" asp-action="ManageRequests" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Customer</th>
+                                <th>Project Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#REQ-567</td>
+                                <td>Jennifer Adams</td>
+                                <td>Custom Figurine</td>
+                                <td>@DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-warning text-dark">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>#REQ-566</td>
+                                <td>Robert Taylor</td>
+                                <td>Mechanical Part</td>
+                                <td>@DateTime.Now.AddDays(-2).ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-success">Approved</span></td>
+                            </tr>
+                            <tr>
+                                <td>#REQ-565</td>
+                                <td>Lisa Martinez</td>
+                                <td>Architectural Model</td>
+                                <td>@DateTime.Now.AddDays(-3).ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-info">In Progress</span></td>
+                            </tr>
+                            <tr>
+                                <td>#REQ-564</td>
+                                <td>Kevin Wilson</td>
+                                <td>Custom Vase</td>
+                                <td>@DateTime.Now.AddDays(-4).ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-danger">Rejected</span></td>
+                            </tr>
+                            <tr>
+                                <td>#REQ-563</td>
+                                <td>Amanda Clark</td>
+                                <td>Jewelry Design</td>
+                                <td>@DateTime.Now.AddDays(-5).ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [1200, 1900, 3000, 5000, 4000, 6000, 7000, 6500, 8000, 8500, 9000, 9500],
+                    backgroundColor: 'rgba(98, 0, 234, 0.1)',
+                    borderColor: 'rgba(98, 0, 234, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Figurines', 'Home Decor', 'Gadgets', 'Jewelry', 'Educational'],
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: [
+                        'rgba(98, 0, 234, 0.8)',
+                        'rgba(157, 70, 255, 0.8)',
+                        'rgba(3, 218, 198, 0.8)',
+                        'rgba(102, 255, 248, 0.8)',
+                        'rgba(255, 193, 7, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+}

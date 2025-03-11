@@ -1,0 +1,291 @@
+﻿@model CustomPrintViewModel
+@{
+    ViewData["Title"] = "Custom 3D Printing";
+}
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-lg-6">
+            <h1 class="fw-bold mb-3">Custom 3D Printing Service</h1>
+            <p class="lead">Upload your 3D model and we'll bring your design to life with precision and quality.</p>
+            <p>Our custom 3D printing service allows you to create unique objects from your own designs. Whether you need a prototype, a replacement part, or a personalized gift, we can help you turn your digital model into a physical reality.</p>
+
+            <div class="mt-4">
+                <h5 class="fw-bold mb-3">How It Works</h5>
+                <ol class="list-group list-group-numbered mb-4">
+                    <li class="list-group-item d-flex align-items-start">
+                        <div>
+                            <div class="fw-bold">Upload Your Model</div>
+                            <p class="mb-0">Upload your 3D model file (STL, OBJ, 3MF, or GCODE format)</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-start">
+                        <div>
+                            <div class="fw-bold">Choose Printing Options</div>
+                            <p class="mb-0">Select material, quality, and other specifications</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-start">
+                        <div>
+                            <div class="fw-bold">Get a Quote</div>
+                            <p class="mb-0">We'll review your model and provide a price estimate</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-start">
+                        <div>
+                            <div class="fw-bold">Approve and Pay</div>
+                            <p class="mb-0">Once you approve the quote, we'll start printing</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-start">
+                        <div>
+                            <div class="fw-bold">Receive Your Print</div>
+                            <p class="mb-0">We'll ship your finished print directly to you</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="custom-print-form">
+                <h3 class="fw-bold mb-4">Submit Your Custom Print Request</h3>
+
+                <form asp-controller="PrintingServices" asp-action="CustomPrint" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Project Name</label>
+                        <input asp-for="Name" class="form-control" required>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Project Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="form-text">Please provide details about your project, including dimensions, intended use, and any special requirements.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PrintingServiceId" class="form-label">Printing Service</label>
+                        <select asp-for="PrintingServiceId" class="form-select" required>
+                            <option value="">Select a printing service</option>
+                            @foreach (var service in Model.PrintingServices)
+                            {
+                                <option value="@service.Id">@service.Name - $@service.BasePrice.ToString("0.00") base price</option>
+                            }
+                        </select>
+                        <span asp-validation-for="PrintingServiceId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ModelFile" class="form-label">3D Model File</label>
+                        <div class="file-upload-container" onclick="document.getElementById('modelFile').click()">
+                            <i class="bi bi-file-earmark-arrow-up"></i>
+                            <h5 class="mb-2">Upload Your 3D Model</h5>
+                            <p class="mb-0 text-muted">Supported formats: STL, OBJ, 3MF, GCODE</p>
+                            <p class="mb-0 text-muted">Maximum file size: 50MB</p>
+                            <input asp-for="ModelFile" id="modelFile" class="d-none" type="file" accept=".stl,.obj,.3mf,.gcode" required>
+                        </div>
+                        <span asp-validation-for="ModelFile" class="text-danger"></span>
+                        <div id="selectedModelFile" class="mt-2 d-none">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle-fill me-2"></i> <span id="modelFileName"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ReferenceImage" class="form-label">Reference Image (Optional)</label>
+                        <div class="file-upload-container" onclick="document.getElementById('referenceImage').click()">
+                            <i class="bi bi-image"></i>
+                            <h5 class="mb-2">Upload a Reference Image</h5>
+                            <p class="mb-0 text-muted">Supported formats: JPG, JPEG, PNG, GIF</p>
+                            <p class="mb-0 text-muted">Maximum file size: 10MB</p>
+                            <input asp-for="ReferenceImage" id="referenceImage" class="d-none" type="file" accept=".jpg,.jpeg,.png,.gif">
+                        </div>
+                        <span asp-validation-for="ReferenceImage" class="text-danger"></span>
+                        <div id="selectedReferenceImage" class="mt-2 d-none">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle-fill me-2"></i> <span id="referenceImageName"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="EstimatedWeightInGrams" class="form-label">Estimated Weight (grams)</label>
+                            <input asp-for="EstimatedWeightInGrams" type="number" step="0.1" min="0.1" class="form-control">
+                            <span asp-validation-for="EstimatedWeightInGrams" class="text-danger"></span>
+                            <div class="form-text">If you know the approximate weight, this helps us estimate the cost.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EstimatedPrintTimeInHours" class="form-label">Estimated Print Time (hours)</label>
+                            <input asp-for="EstimatedPrintTimeInHours" type="number" step="0.1" min="0.1" class="form-control">
+                            <span asp-validation-for="EstimatedPrintTimeInHours" class="text-danger"></span>
+                            <div class="form-text">If you know the approximate print time, this helps us estimate the cost.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="fw-bold mb-4">Available Materials</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img src="/images/pla-material.jpg" class="card-img-top" alt="PLA Material">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">PLA (Polylactic Acid)</h5>
+                            <p class="card-text">A biodegradable thermoplastic derived from renewable resources like corn starch. Great for decorative items and prototypes.</p>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Biodegradable</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Easy to print</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Good detail</li>
+                                <li><i class="bi bi-x-circle-fill text-danger me-2"></i> Not heat resistant</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img src="/images/abs-material.jpg" class="card-img-top" alt="ABS Material">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">ABS (Acrylonitrile Butadiene Styrene)</h5>
+                            <p class="card-text">A strong, durable plastic commonly used for functional parts that need to withstand higher temperatures.</p>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Heat resistant</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Durable</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Impact resistant</li>
+                                <li><i class="bi bi-x-circle-fill text-danger me-2"></i> More difficult to print</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img src="/images/tpu-material.jpg" class="card-img-top" alt="TPU Material">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">TPU (Thermoplastic Polyurethane)</h5>
+                            <p class="card-text">A flexible, rubber-like material perfect for items that need to bend or compress.</p>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Flexible</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Abrasion resistant</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i> Chemical resistant</li>
+                                <li><i class="bi bi-x-circle-fill text-danger me-2"></i> Slower print speeds</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h3 class="fw-bold mb-4">Frequently Asked Questions</h3>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            What file formats do you accept?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            We accept STL, OBJ, 3MF, and GCODE file formats. STL is the most common format for 3D printing and is recommended for most projects.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            How long does it take to complete a custom print?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            The turnaround time depends on the complexity, size, and material of your print, as well as our current workload. Typically, we can complete most prints within 3-5 business days after approval. For larger or more complex projects, it may take longer. We'll provide you with an estimated completion time when we send you the quote.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            How is the price calculated?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            The price is calculated based on several factors: the material used (cost per gram), the estimated print time (cost per hour), and a base price that covers setup and handling. The size, complexity, and density of your model will affect both the material usage and print time. We'll provide you with a detailed breakdown of the costs when we send you the quote.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            Can you help me design a 3D model?
+                        </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Yes, we offer 3D modeling services for an additional fee. If you don't have a 3D model but have an idea or a reference image, our designers can create a custom 3D model for you. Please contact us directly to discuss your design needs and get a quote for the modeling service.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqFive">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                            What if I'm not satisfied with the print quality?
+                        </button>
+                    </h2>
+                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="faqFive" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Customer satisfaction is our top priority. If you're not satisfied with the quality of your print, please contact us within 7 days of receiving your order. We'll work with you to resolve the issue, which may include reprinting the item or offering a refund, depending on the circumstances.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('modelFile').addEventListener('change', function() {
+            const fileInput = this;
+            const fileNameElement = document.getElementById('modelFileName');
+            const selectedFileElement = document.getElementById('selectedModelFile');
+
+            if (fileInput.files.length > 0) {
+                fileNameElement.textContent = fileInput.files[0].name;
+                selectedFileElement.classList.remove('d-none');
+            } else {
+                selectedFileElement.classList.add('d-none');
+            }
+        });
+
+        document.getElementById('referenceImage').addEventListener('change', function() {
+            const fileInput = this;
+            const fileNameElement = document.getElementById('referenceImageName');
+            const selectedFileElement = document.getElementById('selectedReferenceImage');
+
+            if (fileInput.files.length > 0) {
+                fileNameElement.textContent = fileInput.files[0].name;
+                selectedFileElement.classList.remove('d-none');
+            } else {
+                selectedFileElement.classList.add('d-none');
+            }
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

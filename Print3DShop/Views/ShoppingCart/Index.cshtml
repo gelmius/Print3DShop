@@ -1,0 +1,170 @@
+﻿@model ShoppingCartViewModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container">
+    <h1 class="fw-bold mb-4">Shopping Cart</h1>
+
+    @if (!Model.CartItems.Any())
+    {
+        <div class="alert alert-info">
+            Your shopping cart is empty. <a asp-controller="Products" asp-action="Index">Continue shopping</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="cart-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        @if (item.Product != null)
+                                        {
+                                            <img src="@(string.IsNullOrEmpty(item.Product.ThumbnailImagePath) ? "/images/placeholder-product.png" : item.Product.ThumbnailImagePath)"
+                                                 class="cart-item-image" alt="@item.Product.Name">
+                                        }
+                                        else if (item.PrintingService != null)
+                                        {
+                                            <img src="@(string.IsNullOrEmpty(item.PrintingService.ThumbnailImagePath) ? "/images/placeholder-service.png" : item.PrintingService.ThumbnailImagePath)"
+                                                 class="cart-item-image" alt="@item.PrintingService.Name">
+                                        }
+                                        else if (item.CustomPrintRequest != null)
+                                        {
+                                            <img src="@(string.IsNullOrEmpty(item.CustomPrintRequest.ReferenceImagePath) ? "/images/placeholder-custom.png" : item.CustomPrintRequest.ReferenceImagePath)"
+                                                 class="cart-item-image" alt="@item.CustomPrintRequest.Name">
+                                        }
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h5 class="mb-1">
+                                            @if (item.Product != null)
+                                            {
+                                                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Product.Id" class="text-decoration-none">@item.Product.Name</a>
+                                            }
+                                            else if (item.PrintingService != null)
+                                            {
+                                                <a asp-controller="PrintingServices" asp-action="Details" asp-route-id="@item.PrintingService.Id" class="text-decoration-none">@item.PrintingService.Name</a>
+                                            }
+                                            else if (item.CustomPrintRequest != null)
+                                            {
+                                                <a asp-controller="PrintingServices" asp-action="RequestDetails" asp-route-id="@item.CustomPrintRequest.Id" class="text-decoration-none">@item.CustomPrintRequest.Name</a>
+                                            }
+                                        </h5>
+                                        <p class="text-muted small">
+                                            @if (item.Product != null)
+                                            {
+                                                @(item.Product.Description.Length > 50 ? item.Product.Description.Substring(0, 50) + "..." : item.Product.Description)
+                                            }
+                                            else if (item.PrintingService != null)
+                                            {
+                                                @(item.PrintingService.Description.Length > 50 ? item.PrintingService.Description.Substring(0, 50) + "..." : item.PrintingService.Description)
+                                            }
+                                            else if (item.CustomPrintRequest != null)
+                                            {
+                                                @(item.CustomPrintRequest.Description.Length > 50 ? item.CustomPrintRequest.Description.Substring(0, 50) + "..." : item.CustomPrintRequest.Description)
+                                            }
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group">
+                                            <form asp-controller="ShoppingCart" asp-action="UpdateQuantity" method="post" class="d-flex">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="number" name="quantity" class="form-control" min="1" value="@item.Quantity" />
+                                                <button type="submit" class="btn btn-outline-primary">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <p class="fw-bold mb-0">
+                                            @if (item.Product != null)
+                                            {
+                                                <span>$@((item.Product.Price * item.Quantity).ToString("0.00"))</span>
+                                            }
+                                            else if (item.PrintingService != null)
+                                            {
+                                                <span>$@((item.PrintingService.BasePrice * item.Quantity).ToString("0.00"))</span>
+                                            }
+                                            else if (item.CustomPrintRequest != null && item.CustomPrintRequest.EstimatedPrice.HasValue)
+                                            {
+                                                <span>$@((item.CustomPrintRequest.EstimatedPrice.Value * item.Quantity).ToString("0.00"))</span>
+                                            }
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <form asp-controller="ShoppingCart" asp-action="RemoveFromCart" method="post">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i> Remove
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i> Continue Shopping
+                    </a>
+                    <form asp-controller="ShoppingCart" asp-action="ClearCart" method="post">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-2"></i> Clear Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="cart-summary mb-4">
+                    <h4 class="fw-bold mb-4">Order Summary</h4>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>$@Model.CartTotal.ToString("0.00")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping</span>
+                        <span>@(Model.CartTotal >= 50 ? "Free" : "$5.00")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax</span>
+                        <span>$@((Model.CartTotal * 0.08m).ToString("0.00"))</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold fs-5">$@((Model.CartTotal + (Model.CartTotal >= 50 ? 0 : 5) + (Model.CartTotal * 0.08m)).ToString("0.00"))</span>
+                    </div>
+
+                    <div class="d-grid">
+                        <a asp-controller="ShoppingCart" asp-action="Checkout" class="btn btn-primary btn-lg">
+                            Proceed to Checkout
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">Have a Coupon?</h5>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Enter coupon code">
+                            <button class="btn btn-outline-primary" type="button">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
